@@ -492,6 +492,7 @@
             height: 100%;
             z-index: -1;
             overflow: hidden;
+            display: none;
         }
 
         .drop {
@@ -513,6 +514,7 @@
             width: 100%;
             height: 100%;
             z-index: -1;
+            display: none;
         }
 
         .flake {
@@ -554,6 +556,29 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        .error-message {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #ff6b6b;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            z-index: 1001;
+            animation: slideIn 0.3s ease-out, fadeOut 0.5s ease-in 2.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from { top: -50px; }
+            to { top: 20px; }
+        }
+
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; visibility: hidden; }
+        }
     </style>
 </head>
 <body class="day-mode">
@@ -562,6 +587,8 @@
     <div class="cloud" style="top: 10%; animation-delay: 0s;"><i class="fas fa-cloud"></i></div>
     <div class="cloud" style="top: 30%; animation-delay: -5s; animation-duration: 25s;"><i class="fas fa-cloud"></i></div>
     <div class="cloud" style="top: 50%; animation-delay: -10s; animation-duration: 30s;"><i class="fas fa-cloud"></i></div>
+    <div class="rain"></div>
+    <div class="snow"></div>
     
     <!-- Loading overlay -->
     <div class="loader">
@@ -576,18 +603,18 @@
                 <span>SkyCast</span>
             </div>
             <div class="search-container">
-                <input type="text" class="search-input" placeholder="Search city...">
-                <button class="search-btn"><i class="fas fa-search"></i></button>
+                <input type="text" class="search-input" placeholder="Search city..." id="search-input">
+                <button class="search-btn" id="search-btn"><i class="fas fa-search"></i></button>
             </div>
             <div class="controls">
-                <button class="location-btn" title="Use current location">
+                <button class="location-btn" id="location-btn" title="Use current location">
                     <i class="fas fa-location-arrow"></i>
                 </button>
                 <div class="unit-toggle">
-                    <button class="unit-btn active" data-unit="celsius">°C</button>
-                    <button class="unit-btn" data-unit="fahrenheit">°F</button>
+                    <button class="unit-btn active" id="celsius-btn" data-unit="celsius">°C</button>
+                    <button class="unit-btn" id="fahrenheit-btn" data-unit="fahrenheit">°F</button>
                 </div>
-                <button class="theme-toggle" title="Toggle dark mode">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
                     <i class="fas fa-moon"></i>
                 </button>
             </div>
@@ -599,18 +626,18 @@
                 <!-- Current weather card -->
                 <div class="current-weather fade-in">
                     <div class="location-info">
-                        <h2>New York, US</h2>
-                        <div class="date-time">Friday, June 13, 2023 | 10:45 AM</div>
+                        <h2 id="city-name">New York, US</h2>
+                        <div class="date-time" id="date-time">Friday, June 13, 2023 | 10:45 AM</div>
                     </div>
                     
                     <div class="weather-main">
-                        <div class="temperature">24°</div>
-                        <div class="weather-icon">
+                        <div class="temperature" id="temperature">24°</div>
+                        <div class="weather-icon" id="weather-icon">
                             <i class="fas fa-sun"></i>
                         </div>
                         <div>
-                            <div class="weather-desc">Sunny</div>
-                            <div class="feels-like">Feels like: 26°</div>
+                            <div class="weather-desc" id="weather-desc">Sunny</div>
+                            <div class="feels-like" id="feels-like">Feels like: 26°</div>
                         </div>
                     </div>
                     
@@ -621,7 +648,7 @@
                             </div>
                             <div class="detail-info">
                                 <h3>Wind Speed</h3>
-                                <p>12 km/h</p>
+                                <p id="wind-speed">12 km/h</p>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -630,7 +657,7 @@
                             </div>
                             <div class="detail-info">
                                 <h3>Humidity</h3>
-                                <p>65%</p>
+                                <p id="humidity">65%</p>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -639,7 +666,7 @@
                             </div>
                             <div class="detail-info">
                                 <h3>Pressure</h3>
-                                <p>1012 hPa</p>
+                                <p id="pressure">1012 hPa</p>
                             </div>
                         </div>
                         <div class="detail-item">
@@ -648,7 +675,7 @@
                             </div>
                             <div class="detail-info">
                                 <h3>Sunrise</h3>
-                                <p>5:42 AM</p>
+                                <p id="sunrise">5:42 AM</p>
                             </div>
                         </div>
                     </div>
@@ -657,37 +684,8 @@
                 <!-- Forecast card -->
                 <div class="forecast fade-in">
                     <h2 class="section-title"><i class="fas fa-calendar-day"></i> 5-Day Forecast</h2>
-                    <div class="forecast-cards">
-                        <div class="forecast-card">
-                            <div class="forecast-date">Tomorrow</div>
-                            <div class="forecast-icon"><i class="fas fa-cloud-sun"></i></div>
-                            <div class="forecast-temp">26° / 18°</div>
-                            <div class="forecast-desc">Partly Cloudy</div>
-                        </div>
-                        <div class="forecast-card">
-                            <div class="forecast-date">Sat</div>
-                            <div class="forecast-icon"><i class="fas fa-cloud-showers-heavy"></i></div>
-                            <div class="forecast-temp">22° / 16°</div>
-                            <div class="forecast-desc">Showers</div>
-                        </div>
-                        <div class="forecast-card">
-                            <div class="forecast-date">Sun</div>
-                            <div class="forecast-icon"><i class="fas fa-cloud-sun"></i></div>
-                            <div class="forecast-temp">25° / 19°</div>
-                            <div class="forecast-desc">Partly Cloudy</div>
-                        </div>
-                        <div class="forecast-card">
-                            <div class="forecast-date">Mon</div>
-                            <div class="forecast-icon"><i class="fas fa-sun"></i></div>
-                            <div class="forecast-temp">28° / 20°</div>
-                            <div class="forecast-desc">Sunny</div>
-                        </div>
-                        <div class="forecast-card">
-                            <div class="forecast-date">Tue</div>
-                            <div class="forecast-icon"><i class="fas fa-cloud"></i></div>
-                            <div class="forecast-temp">24° / 18°</div>
-                            <div class="forecast-desc">Cloudy</div>
-                        </div>
+                    <div class="forecast-cards" id="forecast-cards">
+                        <!-- Forecast cards will be generated here -->
                     </div>
                 </div>
             </div>
@@ -707,27 +705,27 @@
                     <div class="recommendation-icon">
                         <i class="fas fa-tshirt"></i>
                     </div>
-                    <div class="recommendation-text">
+                    <div class="recommendation-text" id="clothing-tip">
                         <h3>Clothing Suggestion</h3>
-                        <p>Light clothing is recommended. Consider a t-shirt and shorts. Sunglasses would be helpful.</p>
+                        <p>Loading clothing recommendation...</p>
                     </div>
                 </div>
                 <div class="recommendation-item">
                     <div class="recommendation-icon">
                         <i class="fas fa-umbrella-beach"></i>
                     </div>
-                    <div class="recommendation-text">
+                    <div class="recommendation-text" id="activity-tip">
                         <h3>Outdoor Activity</h3>
-                        <p>Perfect weather for outdoor activities. Great day for hiking, picnics, or beach visits.</p>
+                        <p>Loading activity suggestion...</p>
                     </div>
                 </div>
                 <div class="recommendation-item">
                     <div class="recommendation-icon">
                         <i class="fas fa-car"></i>
                     </div>
-                    <div class="recommendation-text">
+                    <div class="recommendation-text" id="travel-tip">
                         <h3>Travel Advisory</h3>
-                        <p>Clear conditions for driving. UV index is high - apply sunscreen if spending extended time outdoors.</p>
+                        <p>Loading travel advisory...</p>
                     </div>
                 </div>
             </div>
@@ -742,12 +740,48 @@
     <script>
         // DOM Elements
         const body = document.body;
-        const themeToggle = document.querySelector('.theme-toggle');
-        const unitButtons = document.querySelectorAll('.unit-btn');
-        const searchInput = document.querySelector('.search-input');
-        const searchBtn = document.querySelector('.search-btn');
-        const locationBtn = document.querySelector('.location-btn');
+        const themeToggle = document.getElementById('theme-toggle');
+        const celsiusBtn = document.getElementById('celsius-btn');
+        const fahrenheitBtn = document.getElementById('fahrenheit-btn');
+        const searchInput = document.getElementById('search-input');
+        const searchBtn = document.getElementById('search-btn');
+        const locationBtn = document.getElementById('location-btn');
         const loader = document.querySelector('.loader');
+        const cityName = document.getElementById('city-name');
+        const dateTime = document.getElementById('date-time');
+        const temperature = document.getElementById('temperature');
+        const weatherIcon = document.getElementById('weather-icon').querySelector('i');
+        const weatherDesc = document.getElementById('weather-desc');
+        const feelsLike = document.getElementById('feels-like');
+        const windSpeed = document.getElementById('wind-speed');
+        const humidity = document.getElementById('humidity');
+        const pressure = document.getElementById('pressure');
+        const sunrise = document.getElementById('sunrise');
+        const forecastCards = document.getElementById('forecast-cards');
+        const clothingTip = document.getElementById('clothing-tip').querySelector('p');
+        const activityTip = document.getElementById('activity-tip').querySelector('p');
+        const travelTip = document.getElementById('travel-tip').querySelector('p');
+        
+        // Weather data storage
+        let weatherData = {
+            city: "New York",
+            country: "US",
+            temp: 24,
+            feels_like: 26,
+            description: "Sunny",
+            icon: "fa-sun",
+            wind: 12,
+            humidity: 65,
+            pressure: 1012,
+            sunrise: "5:42 AM",
+            forecast: [
+                { day: "Tomorrow", icon: "fa-cloud-sun", temp: { day: 26, night: 18 }, desc: "Partly Cloudy" },
+                { day: "Sat", icon: "fa-cloud-showers-heavy", temp: { day: 22, night: 16 }, desc: "Showers" },
+                { day: "Sun", icon: "fa-cloud-sun", temp: { day: 25, night: 19 }, desc: "Partly Cloudy" },
+                { day: "Mon", icon: "fa-sun", temp: { day: 28, night: 20 }, desc: "Sunny" },
+                { day: "Tue", icon: "fa-cloud", temp: { day: 24, night: 18 }, desc: "Cloudy" }
+            ]
+        };
         
         // Initialize theme
         let isDarkMode = false;
@@ -756,58 +790,63 @@
         let isCelsius = true;
         
         // Initialize temperature chart
-        const ctx = document.getElementById('temperatureChart').getContext('2d');
-        const temperatureChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Today', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed'],
-                datasets: [{
-                    label: 'Day Temperature (°C)',
-                    data: [24, 22, 25, 28, 24, 26],
-                    borderColor: '#FF6B6B',
-                    backgroundColor: 'rgba(255, 107, 107, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }, {
-                    label: 'Night Temperature (°C)',
-                    data: [18, 16, 19, 20, 18, 19],
-                    borderColor: '#4A6FA5',
-                    backgroundColor: 'rgba(74, 111, 165, 0.1)',
-                    tension: 0.4,
-                    fill: true
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#FFFFFF'
-                        }
-                    }
+        let temperatureChart;
+        
+        // Initialize chart
+        function initChart() {
+            const ctx = document.getElementById('temperatureChart').getContext('2d');
+            temperatureChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Today', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed'],
+                    datasets: [{
+                        label: 'Day Temperature (°C)',
+                        data: [24, 22, 25, 28, 24, 26],
+                        borderColor: '#FF6B6B',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: 'Night Temperature (°C)',
+                        data: [18, 16, 19, 20, 18, 19],
+                        borderColor: '#4A6FA5',
+                        backgroundColor: 'rgba(74, 111, 165, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
                 },
-                scales: {
-                    y: {
-                        beginAtZero: false,
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
-                        },
-                        ticks: {
-                            color: '#FFFFFF'
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF'
+                            }
                         }
                     },
-                    x: {
-                        grid: {
-                            color: 'rgba(255, 255, 255, 0.1)'
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#FFFFFF'
+                            }
                         },
-                        ticks: {
-                            color: '#FFFFFF'
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#FFFFFF'
+                            }
                         }
                     }
                 }
-            }
-        });
+            });
+        }
         
         // Theme toggle functionality
         themeToggle.addEventListener('click', () => {
@@ -822,83 +861,186 @@
         });
         
         // Unit toggle functionality
-        unitButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const unit = button.dataset.unit;
-                
-                // Toggle active state
-                unitButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-                
-                // Convert temperatures
-                isCelsius = unit === 'celsius';
-                convertTemperatures(isCelsius);
-            });
+        celsiusBtn.addEventListener('click', () => {
+            if (!isCelsius) {
+                isCelsius = true;
+                celsiusBtn.classList.add('active');
+                fahrenheitBtn.classList.remove('active');
+                updateUI();
+            }
         });
         
-        function convertTemperatures(toCelsius) {
-            const tempElements = document.querySelectorAll('.temperature, .feels-like, .forecast-temp');
+        fahrenheitBtn.addEventListener('click', () => {
+            if (isCelsius) {
+                isCelsius = false;
+                celsiusBtn.classList.remove('active');
+                fahrenheitBtn.classList.add('active');
+                updateUI();
+            }
+        });
+        
+        // Convert temperature based on unit
+        function convertTemp(temp) {
+            return isCelsius ? Math.round(temp) : Math.round((temp * 9/5) + 32);
+        }
+        
+        // Format temperature for display
+        function formatTemp(temp) {
+            return ${convertTemp(temp)}°${isCelsius ? 'C' : 'F'};
+        }
+        
+        // Update UI with current weather data
+        function updateUI() {
+            cityName.textContent = ${weatherData.city}, ${weatherData.country};
+            temperature.textContent = formatTemp(weatherData.temp);
+            weatherIcon.className = fas ${weatherData.icon};
+            weatherDesc.textContent = weatherData.description;
+            feelsLike.textContent = Feels like: ${formatTemp(weatherData.feels_like)};
+            windSpeed.textContent = ${weatherData.wind} km/h;
+            humidity.textContent = ${weatherData.humidity}%;
+            pressure.textContent = ${weatherData.pressure} hPa;
+            sunrise.textContent = weatherData.sunrise;
             
-            tempElements.forEach(el => {
-                let text = el.textContent;
-                let value;
-                
-                // Extract temperature value
-                if (text.includes('/')) {
-                    // Handle forecast temperatures (min/max)
-                    const parts = text.split('/');
-                    const firstValue = parseFloat(parts[0]);
-                    const secondValue = parseFloat(parts[1]);
-                    
-                    if (toCelsius) {
-                        // Convert back to Celsius: °C = (°F - 32) * 5/9
-                        const firstConverted = Math.round((firstValue - 32) * 5/9);
-                        const secondConverted = Math.round((secondValue - 32) * 5/9);
-                        el.textContent = ${firstConverted}° / ${secondConverted}°;
-                    } else {
-                        // Convert to Fahrenheit: °F = (°C × 9/5) + 32
-                        const firstConverted = Math.round((firstValue * 9/5) + 32);
-                        const secondConverted = Math.round((secondValue * 9/5) + 32);
-                        el.textContent = ${firstConverted}° / ${secondConverted}°;
-                    }
-                } else {
-                    // Handle single temperature values
-                    value = parseFloat(text);
-                    
-                    if (toCelsius) {
-                        // Convert back to Celsius
-                        const converted = Math.round((value - 32) * 5/9);
-                        el.textContent = ${converted}°;
-                    } else {
-                        // Convert to Fahrenheit
-                        const converted = Math.round((value * 9/5) + 32);
-                        el.textContent = ${converted}°;
-                    }
-                }
+            // Update forecast
+            forecastCards.innerHTML = '';
+            weatherData.forecast.forEach(day => {
+                const card = document.createElement('div');
+                card.className = 'forecast-card';
+                card.innerHTML = `
+                    <div class="forecast-date">${day.day}</div>
+                    <div class="forecast-icon"><i class="fas ${day.icon}"></i></div>
+                    <div class="forecast-temp">${formatTemp(day.temp.day)} / ${formatTemp(day.temp.night)}</div>
+                    <div class="forecast-desc">${day.desc}</div>
+                `;
+                forecastCards.appendChild(card);
             });
             
-            // Update chart
-            updateChartUnit(isCelsius);
+            // Update recommendations based on temperature
+            updateRecommendations(weatherData.temp, weatherData.description);
+            
+            // Update background based on weather
+            updateBackground(weatherData.description);
         }
         
-        function updateChartUnit(isCelsius) {
-            if (isCelsius) {
-                temperatureChart.data.datasets[0].label = 'Day Temperature (°C)';
-                temperatureChart.data.datasets[1].label = 'Night Temperature (°C)';
+        // Update recommendations based on temperature
+        function updateRecommendations(temp, condition) {
+            const tempC = isCelsius ? temp : (temp - 32) * 5/9;
+            
+            // Clothing suggestions
+            if (tempC > 30) {
+                clothingTip.textContent = "Light clothing is recommended. Consider a t-shirt and shorts. Sunglasses and sunscreen are essential.";
+            } else if (tempC > 20) {
+                clothingTip.textContent = "Comfortable clothing is ideal. A t-shirt with light pants or a skirt. Bring a light jacket just in case.";
+            } else if (tempC > 10) {
+                clothingTip.textContent = "Wear layers. A sweater or jacket over a long-sleeve shirt. Consider a light scarf.";
             } else {
-                temperatureChart.data.datasets[0].label = 'Day Temperature (°F)';
-                temperatureChart.data.datasets[1].label = 'Night Temperature (°F)';
+                clothingTip.textContent = "Bundle up! Wear a warm coat, hat, gloves, and scarf. Thermal layers are recommended.";
             }
-            temperatureChart.update();
+            
+            // Activity suggestions
+            if (condition.toLowerCase().includes("rain")) {
+                activityTip.textContent = "Indoor activities are best today. Consider visiting a museum, cafe, or indoor sports facility.";
+            } else if (condition.toLowerCase().includes("sun") || condition.toLowerCase().includes("clear")) {
+                activityTip.textContent = "Perfect weather for outdoor activities. Great day for hiking, picnics, or beach visits.";
+            } else if (condition.toLowerCase().includes("cloud")) {
+                activityTip.textContent = "Good conditions for outdoor activities. Consider a walk in the park or a city tour.";
+            } else if (tempC < 5) {
+                activityTip.textContent = "Cold weather activities: Ice skating, skiing, or enjoying a warm drink indoors.";
+            } else {
+                activityTip.textContent = "Enjoy your day! Consider both indoor and outdoor options depending on your preference.";
+            }
+            
+            // Travel advisory
+            if (condition.toLowerCase().includes("fog") || condition.toLowerCase().includes("storm")) {
+                travelTip.textContent = "Exercise caution while traveling. Reduced visibility and potentially hazardous conditions. Delay travel if possible.";
+            } else if (condition.toLowerCase().includes("rain") || condition.toLowerCase().includes("snow")) {
+                travelTip.textContent = "Wet conditions: Allow extra travel time. Use headlights and maintain safe following distance.";
+            } else {
+                travelTip.textContent = "Clear conditions for travel. Normal driving conditions expected. Always follow traffic rules.";
+            }
         }
         
-        // Simulate API calls with loading state
+        // Update background based on weather condition
+        function updateBackground(condition) {
+            const rain = document.querySelector('.rain');
+            const snow = document.querySelector('.snow');
+            const sun = document.querySelector('.sun');
+            const clouds = document.querySelectorAll('.cloud');
+            
+            // Reset all
+            rain.style.display = 'none';
+            snow.style.display = 'none';
+            sun.style.display = 'block';
+            clouds.forEach(cloud => cloud.style.display = 'block');
+            
+            // Remove existing drops and flakes
+            document.querySelectorAll('.drop, .flake').forEach(el => el.remove());
+            
+            if (condition.toLowerCase().includes("rain")) {
+                rain.style.display = 'block';
+                sun.style.display = 'none';
+                createRainDrops();
+            } else if (condition.toLowerCase().includes("snow")) {
+                snow.style.display = 'block';
+                sun.style.display = 'none';
+                createSnowFlakes();
+            } else if (condition.toLowerCase().includes("cloud")) {
+                sun.style.display = 'block';
+            } else if (condition.toLowerCase().includes("clear")) {
+                clouds.forEach(cloud => cloud.style.display = 'none');
+            }
+        }
+        
+        // Create rain drops
+        function createRainDrops() {
+            const rainContainer = document.querySelector('.rain');
+            for (let i = 0; i < 100; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'drop';
+                drop.style.left = ${Math.random() * 100}%;
+                drop.style.animationDuration = ${0.5 + Math.random() * 0.5}s;
+                drop.style.animationDelay = ${Math.random() * 5}s;
+                drop.style.height = ${10 + Math.random() * 20}px;
+                rainContainer.appendChild(drop);
+            }
+        }
+        
+        // Create snow flakes
+        function createSnowFlakes() {
+            const snowContainer = document.querySelector('.snow');
+            for (let i = 0; i < 50; i++) {
+                const flake = document.createElement('div');
+                flake.className = 'flake';
+                flake.style.left = ${Math.random() * 100}%;
+                flake.style.animationDuration = ${5 + Math.random() * 10}s;
+                flake.style.animationDelay = ${Math.random() * 5}s;
+                flake.style.width = ${5 + Math.random() * 10}px;
+                flake.style.height = flake.style.width;
+                flake.style.opacity = ${0.3 + Math.random() * 0.7};
+                snowContainer.appendChild(flake);
+            }
+        }
+        
+        // Show loading spinner
         function showLoading() {
             loader.style.display = 'flex';
         }
         
+        // Hide loading spinner
         function hideLoading() {
             loader.style.display = 'none';
+        }
+        
+        // Show error message
+        function showError(message) {
+            const error = document.createElement('div');
+            error.className = 'error-message';
+            error.textContent = message;
+            document.body.appendChild(error);
+            
+            setTimeout(() => {
+                error.remove();
+            }, 3000);
         }
         
         // Search functionality
@@ -912,10 +1054,97 @@
             if (city) {
                 showLoading();
                 
-                // Simulate API call
+                // Simulate API call with different city data
                 setTimeout(() => {
-                    // Update UI with new data
-                    document.querySelector('.location-info h2').textContent = city + ', US';
+                    // Update weather data based on city
+                    switch(city.toLowerCase()) {
+                        case 'london':
+                            weatherData = {
+                                city: "London",
+                                country: "UK",
+                                temp: 18,
+                                feels_like: 17,
+                                description: "Cloudy",
+                                icon: "fa-cloud",
+                                wind: 14,
+                                humidity: 75,
+                                pressure: 1010,
+                                sunrise: "5:12 AM",
+                                forecast: [
+                                    { day: "Tomorrow", icon: "fa-cloud-rain", temp: { day: 16, night: 12 }, desc: "Light Rain" },
+                                    { day: "Sat", icon: "fa-cloud", temp: { day: 17, night: 13 }, desc: "Cloudy" },
+                                    { day: "Sun", icon: "fa-cloud-sun", temp: { day: 19, night: 14 }, desc: "Partly Cloudy" },
+                                    { day: "Mon", icon: "fa-sun", temp: { day: 22, night: 16 }, desc: "Sunny" },
+                                    { day: "Tue", icon: "fa-cloud", temp: { day: 20, night: 15 }, desc: "Cloudy" }
+                                ]
+                            };
+                            break;
+                        case 'tokyo':
+                            weatherData = {
+                                city: "Tokyo",
+                                country: "JP",
+                                temp: 28,
+                                feels_like: 31,
+                                description: "Sunny",
+                                icon: "fa-sun",
+                                wind: 8,
+                                humidity: 60,
+                                pressure: 1013,
+                                sunrise: "4:35 AM",
+                                forecast: [
+                                    { day: "Tomorrow", icon: "fa-sun", temp: { day: 30, night: 24 }, desc: "Sunny" },
+                                    { day: "Sat", icon: "fa-cloud", temp: { day: 27, night: 23 }, desc: "Cloudy" },
+                                    { day: "Sun", icon: "fa-cloud-showers-heavy", temp: { day: 25, night: 22 }, desc: "Heavy Rain" },
+                                    { day: "Mon", icon: "fa-cloud-sun", temp: { day: 26, night: 22 }, desc: "Partly Cloudy" },
+                                    { day: "Tue", icon: "fa-sun", temp: { day: 29, night: 24 }, desc: "Sunny" }
+                                ]
+                            };
+                            break;
+                        case 'sydney':
+                            weatherData = {
+                                city: "Sydney",
+                                country: "AU",
+                                temp: 22,
+                                feels_like: 23,
+                                description: "Partly Cloudy",
+                                icon: "fa-cloud-sun",
+                                wind: 15,
+                                humidity: 55,
+                                pressure: 1015,
+                                sunrise: "6:45 AM",
+                                forecast: [
+                                    { day: "Tomorrow", icon: "fa-sun", temp: { day: 25, night: 20 }, desc: "Sunny" },
+                                    { day: "Sat", icon: "fa-cloud-sun", temp: { day: 24, night: 19 }, desc: "Partly Cloudy" },
+                                    { day: "Sun", icon: "fa-wind", temp: { day: 21, night: 18 }, desc: "Windy" },
+                                    { day: "Mon", icon: "fa-cloud-showers-heavy", temp: { day: 19, night: 16 }, desc: "Rain" },
+                                    { day: "Tue", icon: "fa-cloud-sun", temp: { day: 22, night: 18 }, desc: "Partly Cloudy" }
+                                ]
+                            };
+                            break;
+                        default:
+                            // New York as default
+                            weatherData = {
+                                city: "New York",
+                                country: "US",
+                                temp: 24,
+                                feels_like: 26,
+                                description: "Sunny",
+                                icon: "fa-sun",
+                                wind: 12,
+                                humidity: 65,
+                                pressure: 1012,
+                                sunrise: "5:42 AM",
+                                forecast: [
+                                    { day: "Tomorrow", icon: "fa-cloud-sun", temp: { day: 26, night: 18 }, desc: "Partly Cloudy" },
+                                    { day: "Sat", icon: "fa-cloud-showers-heavy", temp: { day: 22, night: 16 }, desc: "Showers" },
+                                    { day: "Sun", icon: "fa-cloud-sun", temp: { day: 25, night: 19 }, desc: "Partly Cloudy" },
+                                    { day: "Mon", icon: "fa-sun", temp: { day: 28, night: 20 }, desc: "Sunny" },
+                                    { day: "Tue", icon: "fa-cloud", temp: { day: 24, night: 18 }, desc: "Cloudy" }
+                                ]
+                            };
+                    }
+                    
+                    updateUI();
                     hideLoading();
                     
                     // Add animation to elements
@@ -925,8 +1154,77 @@
                             el.style.animation = 'fadeIn 0.5s ease forwards';
                         }, 10);
                     });
+                    
+                    // Update chart with new data
+                    updateChart();
                 }, 1000);
+            } else {
+                showError("Please enter a city name");
             }
+        }
+        
+        // Update chart with forecast data
+        function updateChart() {
+            if (temperatureChart) {
+                temperatureChart.destroy();
+            }
+            
+            const ctx = document.getElementById('temperatureChart').getContext('2d');
+            const labels = ['Today', ...weatherData.forecast.map(day => day.day)];
+            const dayTemps = [weatherData.temp, ...weatherData.forecast.map(day => day.temp.day)];
+            const nightTemps = [weatherData.feels_like, ...weatherData.forecast.map(day => day.temp.night)];
+            
+            temperatureChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: Day Temperature (°${isCelsius ? 'C' : 'F'}),
+                        data: dayTemps.map(temp => convertTemp(temp)),
+                        borderColor: '#FF6B6B',
+                        backgroundColor: 'rgba(255, 107, 107, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }, {
+                        label: Night Temperature (°${isCelsius ? 'C' : 'F'}),
+                        data: nightTemps.map(temp => convertTemp(temp)),
+                        borderColor: '#4A6FA5',
+                        backgroundColor: 'rgba(74, 111, 165, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#FFFFFF'
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#FFFFFF'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#FFFFFF'
+                            }
+                        }
+                    }
+                }
+            });
         }
         
         // Current location functionality
@@ -935,16 +1233,27 @@
             
             // Simulate geolocation API
             setTimeout(() => {
-                // Update UI with new data
-                document.querySelector('.location-info h2').textContent = 'San Francisco, US';
-                document.querySelector('.temperature').textContent = '18°';
-                document.querySelector('.weather-desc').textContent = 'Cloudy';
-                document.querySelector('.feels-like').textContent = 'Feels like: 17°';
+                weatherData = {
+                    city: "San Francisco",
+                    country: "US",
+                    temp: 18,
+                    feels_like: 17,
+                    description: "Cloudy",
+                    icon: "fa-cloud",
+                    wind: 14,
+                    humidity: 70,
+                    pressure: 1011,
+                    sunrise: "5:52 AM",
+                    forecast: [
+                        { day: "Tomorrow", icon: "fa-cloud-sun", temp: { day: 20, night: 15 }, desc: "Partly Cloudy" },
+                        { day: "Sat", icon: "fa-sun", temp: { day: 23, night: 16 }, desc: "Sunny" },
+                        { day: "Sun", icon: "fa-sun", temp: { day: 25, night: 18 }, desc: "Sunny" },
+                        { day: "Mon", icon: "fa-cloud", temp: { day: 21, night: 16 }, desc: "Cloudy" },
+                        { day: "Tue", icon: "fa-cloud-rain", temp: { day: 19, night: 14 }, desc: "Rain" }
+                    ]
+                };
                 
-                // Update icon
-                const weatherIcon = document.querySelector('.weather-icon i');
-                weatherIcon.className = 'fas fa-cloud';
-                
+                updateUI();
                 hideLoading();
                 
                 // Add animation to elements
@@ -954,6 +1263,9 @@
                         el.style.animation = 'fadeIn 0.5s ease forwards';
                     }, 10);
                 });
+                
+                // Update chart
+                updateChart();
             }, 1000);
         });
         
@@ -969,21 +1281,19 @@
                 minute: '2-digit'
             };
             const dateTimeStr = now.toLocaleDateString('en-US', options);
-            document.querySelector('.date-time').textContent = dateTimeStr;
+            dateTime.textContent = dateTimeStr;
         }
         
-        // Update time every minute
-        updateDateTime();
-        setInterval(updateDateTime, 60000);
-        
-        // Initialize weather animations
-        function initWeatherAnimations() {
-            // This would be based on actual weather condition
-            // For demo, we're always showing sun and clouds
+        // Initialize the application
+        function initApp() {
+            updateDateTime();
+            setInterval(updateDateTime, 60000);
+            initChart();
+            updateUI();
         }
         
-        // Initialize
-        initWeatherAnimations();
+        // Initialize when page loads
+        window.onload = initApp;
     </script>
 </body>
 </html>
