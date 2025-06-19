@@ -1,1 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Weather Xperience Ultra</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ========== CSS RESET & BASE ========== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { height: 100%; font-family: 'Inter', sans-serif; overflow: hidden; }
 
+    /* ========== BACKGROUND + THEME ========== */
+    body {
+      background: linear-gradient(145deg, #1f1c2c, #928dab);
+      color: #ffffff;
+      transition: background 0.5s ease, color 0.5s ease;
+    }
+
+    canvas#three-bg {
+      position: fixed;
+      z-index: 0;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+    }
+
+    /* ========== MAIN CONTAINER ========== */
+    .app-container {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      padding: 2rem;
+      backdrop-filter: blur(25px);
+    }
+
+    .weather-card {
+      background: rgba(255,255,255,0.1);
+      padding: 2.5rem;
+      border-radius: 25px;
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .search-bar input {
+      flex: 1;
+      padding: 1rem;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      background: rgba(255,255,255,0.2);
+      color: #fff;
+      outline: none;
+    }
+
+    .search-bar button {
+      padding: 1rem 2rem;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #ff6a00, #ee0979);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .search-bar button:hover {
+      transform: scale(1.05);
+    }
+
+    .weather-details {
+      display: none;
+      animation: fadeIn 1s ease forwards;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .weather-icon {
+      width: 120px;
+      margin-bottom: 1rem;
+    }
+
+    .detail-block {
+      background: rgba(255,255,255,0.1);
+      margin: 0.5rem 0;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      box-shadow: inset 0 0 5px rgba(255,255,255,0.1);
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      background: rgba(255,255,255,0.2);
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      color: #fff;
+      cursor: pointer;
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      .search-bar { flex-direction: column; }
+      .search-bar button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <canvas id="three-bg"></canvas>
+  <div class="app-container">
+    <button class="theme-toggle" onclick="toggleTheme()">Toggle Theme</button>
+    <div class="weather-card">
+      <h1>Weather Xperience Ultra</h1>
+      <div class="search-bar">
+        <input type="text" id="cityInput" placeholder="Enter city name">
+        <button onclick="fetchWeather()">Search</button>
+      </div>
+      <div class="weather-details" id="weatherDetails">
+        <img class="weather-icon" id="icon" />
+        <div class="detail-block" id="location"></div>
+        <div class="detail-block" id="temp"></div>
+        <div class="detail-block" id="description"></div>
+        <div class="detail-block" id="humidity"></div>
+        <div class="detail-block" id="wind"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    const API_KEY = '5deb268ddb59209622b1d4799dc312cb';
+
+    function fetchWeather() {
+      const city = document.getElementById('cityInput').value;
+      if (!city) return;
+
+      const url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
+
+      fetch(url)
+        .then(res => res.json())
+        .then(data => {
+          if (data.cod !== 200) {
+            alert('City not found.');
+            return;
+          }
+
+          document.getElementById('icon').src = `https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`;
+          document.getElementById('location').textContent = `${data.name}, ${data.sys.country}`;
+          document.getElementById('temp').textContent = `Temperature: ${data.main.temp}°C`;
+          document.getElementById('description').textContent = `Condition: ${data.weather[0].description}`;
+          document.getElementById('humidity').textContent = `Humidity: ${data.main.humidity}%`;
+          document.getElementById('wind').textContent = `Wind Speed: ${data.wind.speed} m/s`;
+
+          document.getElementById('weatherDetails').style.display = 'block';
+        });
+    }
+
+    function toggleTheme() {
+      const currentBg = document.body.style.background;
+      document.body.style.background = currentBg.includes('#1f1c2c') 
+        ? 'linear-gradient(135deg, #ffffff, #dbeafe)' 
+        : 'linear-gradient(145deg, #1f1c2c, #928dab)';
+      document.body.style.color = currentBg.includes('#1f1c2c') ? '#111' : '#fff';
+    }
+
+    // 3D BACKGROUND
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('three-bg'), alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    const geometry = new THREE.IcosahedronGeometry(2, 1);
+    const material = new THREE.MeshStandardMaterial({ color: 0x00d4ff, wireframe: true });
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+
+    const pointLight = new THREE.PointLight(0xffffff, 1);
+    pointLight.position.set(10, 10, 10);
+    scene.add(pointLight);
+
+    camera.position.z = 5;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      mesh.rotation.x += 0.005;
+      mesh.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>
